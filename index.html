@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>זמני היום – לימסול</title>
 
-<!-- KosherZmanim via unpkg (pinned stable version) -->
 <script src="https://unpkg.com/kosher-zmanim@0.9.0/dist/kosher-zmanim.min.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,62 +12,190 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@300;400;500;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 
 <style>
+  /* ── WEEKDAY THEME ── */
   :root {
-    --cream: #f5f0e8;
-    --parchment: #ede5d0;
-    --parchment-dark: #d4c9aa;
-    --ink: #1a1208;
-    --ink-soft: #3d3220;
-    --ink-muted: #6b5d42;
-    --gold: #b8860b;
-    --gold-light: #d4a017;
-    --gold-pale: #e8d5a0;
-    --divider: rgba(184, 134, 11, 0.3);
-    --shadow: rgba(26, 18, 8, 0.12);
+    --bg:                #f5f0e8;
+    --ink:               #1a1208;
+    --ink-muted:         #6b5d42;
+    --accent:            #b8860b;
+    --accent-light:      #d4a017;
+    --divider:           rgba(184,134,11,0.3);
+    --card-bg:           rgba(255,255,255,0.5);
+    --card-border:       #d4c9aa;
+    --card-next-bg:      rgba(184,134,11,0.08);
+    --card-next-border:  #b8860b;
+    --card-next-glow:    rgba(184,134,11,0.15);
+    --card-bar:          #b8860b;
+    --frame-color:       #b8860b;
+    --ornament-color:    #b8860b;
+    --parsha-color:      #b8860b;
+  }
+
+  /* ── SHABBAT THEME ── */
+  body.shabbat {
+    --bg:                #0d1b2e;
+    --ink:               #e8f0f8;
+    --ink-muted:         #7a9bbf;
+    --accent:            #c0c8d8;
+    --accent-light:      #dde4ef;
+    --divider:           rgba(192,200,216,0.2);
+    --card-bg:           rgba(255,255,255,0.05);
+    --card-border:       rgba(192,200,216,0.2);
+    --card-next-bg:      rgba(192,200,216,0.12);
+    --card-next-border:  #a0b4cc;
+    --card-next-glow:    rgba(160,180,204,0.25);
+    --card-bar:          #7a9bbf;
+    --frame-color:       #4a6a8a;
+    --ornament-color:    #7a9bbf;
+    --parsha-color:      #a0c4e8;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: var(--cream);
+    background: var(--bg);
     font-family: 'Noto Serif Hebrew', serif;
     color: var(--ink);
     min-height: 100vh;
     overflow: hidden;
     position: relative;
+    transition: background 1.5s ease, color 1.5s ease;
   }
 
-  /* Parchment texture overlay */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image:
-      radial-gradient(ellipse at 10% 20%, rgba(212, 193, 160, 0.4) 0%, transparent 50%),
-      radial-gradient(ellipse at 90% 80%, rgba(212, 193, 160, 0.3) 0%, transparent 50%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 0;
   }
+  body:not(.shabbat)::before {
+    background:
+      radial-gradient(ellipse at 10% 20%, rgba(212,193,160,0.4) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(212,193,160,0.3) 0%, transparent 50%);
+  }
+  body.shabbat::before {
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(30,80,140,0.5) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 90%, rgba(10,40,90,0.6) 0%, transparent 55%);
+  }
 
-  /* Decorative border frame */
-  body::after {
-    content: '';
+  /* Shabbat stars */
+  body.shabbat .frame-border::after {
+    content: '· · · ✦ · · · ✦ · · · ✦ · · · ✦ · · · ✦ · · ·';
+    position: absolute;
+    top: -30px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.5rem;
+    letter-spacing: 0.8rem;
+    color: rgba(160,196,232,0.25);
+    white-space: nowrap;
+  }
+
+  .frame-border {
     position: fixed;
     inset: 16px;
-    border: 1.5px solid var(--gold);
+    border: 1.5px solid var(--frame-color);
     pointer-events: none;
     z-index: 100;
     opacity: 0.5;
+    transition: border-color 1.5s ease;
   }
+
+  .corner {
+    position: fixed;
+    font-size: 1.3rem;
+    color: var(--ornament-color);
+    opacity: 0.35;
+    z-index: 101;
+    transition: color 1.5s ease;
+  }
+  body.shabbat .corner { opacity: 0.55; }
+  .corner-tl { top: 22px; left: 22px; }
+  .corner-tr { top: 22px; right: 22px; }
+  .corner-bl { bottom: 22px; left: 22px; }
+  .corner-br { bottom: 22px; right: 22px; }
 
   .page {
     position: relative;
     z-index: 1;
     min-height: 100vh;
     display: grid;
-    grid-template-rows: auto 1fr auto;
-    padding: 32px 40px 24px;
+    grid-template-rows: auto auto auto 1fr auto;
+    padding: 28px 40px 20px;
+  }
+
+  /* ── SHABBAT BANNER ── */
+  .shabbat-banner {
+    display: none;
+    text-align: center;
+    padding: 9px 20px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background: rgba(160,180,210,0.1);
+    border: 1px solid rgba(160,180,210,0.28);
+  }
+  body.shabbat .shabbat-banner { display: block; }
+
+  .shabbat-banner-text {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.12em;
+  }
+  .shabbat-banner-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    font-style: italic;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+
+  /* ── CANDLE LIGHTING BANNER ── */
+  .candle-banner {
+    display: none;
+    text-align: center;
+    padding: 9px 20px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background: rgba(184,134,11,0.07);
+    border: 1px solid rgba(184,134,11,0.32);
+  }
+  body.friday .candle-banner { display: block; }
+
+  .candle-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+  .candle-icon {
+    font-size: 1.6rem;
+    animation: flicker 2.8s ease-in-out infinite;
+  }
+  @keyframes flicker {
+    0%,100% { opacity:1; transform:scale(1) rotate(-1deg); }
+    50%      { opacity:0.7; transform:scale(0.93) rotate(1deg); }
+  }
+  .candle-label {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .candle-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+  .candle-time {
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
   }
 
   /* ── HEADER ── */
@@ -76,258 +203,176 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: 18px;
+    padding-bottom: 14px;
     border-bottom: 1px solid var(--divider);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+    transition: border-color 1.5s ease;
   }
 
-  .header-location {
-    text-align: right;
-  }
-
+  .header-location { text-align: right; }
   .city-name {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: var(--ink);
-    line-height: 1;
+    font-size: 2rem; font-weight: 700;
+    letter-spacing: 0.02em; color: var(--ink); line-height: 1;
   }
-
   .city-name-en {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 0.9rem;
-    font-weight: 300;
-    color: var(--ink-muted);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-top: 2px;
+    font-size: 0.9rem; font-weight: 300; color: var(--ink-muted);
+    letter-spacing: 0.15em; text-transform: uppercase; margin-top: 2px;
   }
 
-  .header-clock {
-    text-align: center;
-    flex: 1;
-  }
-
+  .header-clock { text-align: center; flex: 1; }
   .clock-time {
-    font-size: 3.5rem;
-    font-weight: 300;
-    letter-spacing: 0.05em;
-    color: var(--ink);
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
+    font-size: 3.5rem; font-weight: 300;
+    letter-spacing: 0.05em; color: var(--ink);
+    line-height: 1; font-variant-numeric: tabular-nums;
   }
-
   .clock-date {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 0.95rem;
-    color: var(--ink-muted);
-    letter-spacing: 0.08em;
-    margin-top: 3px;
+    font-size: 0.95rem; color: var(--ink-muted);
+    letter-spacing: 0.08em; margin-top: 3px;
   }
 
-  .header-hebrew {
-    text-align: left;
-    direction: rtl;
-  }
-
+  .header-hebrew { text-align: left; direction: rtl; }
   .hebrew-date {
-    font-size: 1.3rem;
-    font-weight: 500;
-    color: var(--ink);
-    line-height: 1.2;
-    text-align: left;
+    font-size: 1.3rem; font-weight: 500;
+    color: var(--ink); line-height: 1.2; text-align: left;
   }
-
   .parsha {
-    font-size: 0.85rem;
-    color: var(--gold);
-    margin-top: 3px;
-    font-weight: 400;
-    text-align: left;
+    font-size: 0.85rem; color: var(--parsha-color);
+    margin-top: 3px; font-weight: 500; text-align: left;
+    transition: color 1.5s ease;
   }
 
-  /* ── GOLD ORNAMENT ── */
   .ornament {
-    text-align: center;
-    color: var(--gold);
-    font-size: 1.1rem;
-    letter-spacing: 0.4em;
-    opacity: 0.6;
-    padding: 6px 0;
+    text-align: center; color: var(--ornament-color);
+    font-size: 1rem; letter-spacing: 0.4em;
+    opacity: 0.5; padding: 4px 0;
+    transition: color 1.5s ease;
   }
 
-  /* ── ZMANIM GRID ── */
-  .zmanim-section {
-    padding: 4px 0;
-  }
-
+  /* ── ZMANIM ── */
   .section-title {
     font-family: 'Noto Serif Hebrew', serif;
-    font-size: 0.85rem;
-    font-weight: 400;
-    letter-spacing: 0.05em;
-    color: var(--ink-muted);
-    text-align: center;
-    margin-bottom: 10px;
-    opacity: 0.7;
-    direction: rtl;
+    font-size: 0.82rem; font-weight: 400; letter-spacing: 0.05em;
+    color: var(--ink-muted); text-align: center;
+    margin-bottom: 8px; opacity: 0.7; direction: rtl;
   }
 
   .zmanim-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
 
   .zman-card {
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid var(--parchment-dark);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 6px;
-    padding: 12px 14px;
+    padding: 10px 13px;
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: background 0.3s, border-color 0.3s, opacity 0.3s;
   }
-
   .zman-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 3px;
-    height: 100%;
-    background: var(--gold);
-    opacity: 0.4;
+    top: 0; right: 0; width: 3px; height: 100%;
+    background: var(--card-bar); opacity: 0.4;
     border-radius: 0 6px 6px 0;
+    transition: background 1.5s ease;
   }
-
-  /* Highlight the next upcoming zman */
   .zman-card.next-zman {
-    background: rgba(184, 134, 11, 0.08);
-    border-color: var(--gold);
-    box-shadow: 0 2px 12px rgba(184, 134, 11, 0.15);
+    background: var(--card-next-bg);
+    border-color: var(--card-next-border);
+    box-shadow: 0 2px 12px var(--card-next-glow);
   }
+  .zman-card.next-zman::before { opacity: 1; width: 4px; }
+  .zman-card.past-zman { opacity: 0.38; }
 
-  .zman-card.next-zman::before {
-    opacity: 1;
-    width: 4px;
+  /* Havdalah cards — distinct on Shabbat */
+  .zman-card.havdalah {
+    background: rgba(160,196,232,0.08);
+    border-color: rgba(160,196,232,0.35);
   }
-
-  .zman-card.past-zman {
-    opacity: 0.45;
-  }
+  .zman-card.havdalah::before { background: #a0c4e8; opacity: 0.6; }
+  .zman-card.havdalah .zman-time { color: #a0c4e8; }
 
   .zman-name-he {
-    font-size: 1.05rem;
-    font-weight: 500;
-    color: var(--ink);
-    line-height: 1.2;
-    margin-bottom: 2px;
+    font-size: 1rem; font-weight: 500;
+    color: var(--ink); line-height: 1.2; margin-bottom: 2px;
   }
-
   .zman-name-en {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 0.75rem;
-    color: var(--ink-muted);
-    font-style: italic;
-    letter-spacing: 0.03em;
-    margin-bottom: 8px;
+    font-size: 0.7rem; color: var(--ink-muted);
+    font-style: italic; margin-bottom: 6px;
   }
-
   .zman-time {
-    font-size: 1.55rem;
-    font-weight: 300;
-    color: var(--ink);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.03em;
-    line-height: 1;
+    font-size: 1.5rem; font-weight: 300;
+    color: var(--ink); font-variant-numeric: tabular-nums;
+    letter-spacing: 0.03em; line-height: 1;
   }
-
   .zman-card.next-zman .zman-time {
-    color: var(--gold);
-    font-weight: 500;
+    color: var(--accent-light); font-weight: 500;
+    animation: shimmer 2.5s ease-in-out infinite;
   }
-
   .next-label {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 0.65rem;
-    color: var(--gold);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    display: block;
-    margin-top: 4px;
+    font-size: 0.62rem; color: var(--accent-light);
+    letter-spacing: 0.2em; text-transform: uppercase;
+    display: block; margin-top: 3px;
   }
+  @keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:0.6} }
 
   /* ── FOOTER ── */
   footer {
     border-top: 1px solid var(--divider);
-    padding-top: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding-top: 10px; margin-top: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: border-color 1.5s ease;
   }
-
   .footer-note {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 0.72rem;
-    color: var(--ink-muted);
-    opacity: 0.6;
-    letter-spacing: 0.05em;
-    font-style: italic;
+    font-size: 0.7rem; color: var(--ink-muted);
+    opacity: 0.6; letter-spacing: 0.05em; font-style: italic;
   }
-
-  .shaah-zmanit {
-    font-size: 0.8rem;
-    color: var(--ink-muted);
-    text-align: center;
-  }
-
-  .shaah-zmanit span {
-    font-weight: 500;
-    color: var(--ink);
-  }
-
-  /* ── CORNER ORNAMENTS ── */
-  .corner {
-    position: fixed;
-    font-size: 1.4rem;
-    color: var(--gold);
-    opacity: 0.35;
-    line-height: 1;
-    z-index: 101;
-  }
-  .corner-tl { top: 22px; left: 22px; }
-  .corner-tr { top: 22px; right: 22px; }
-  .corner-bl { bottom: 22px; left: 22px; }
-  .corner-br { bottom: 22px; right: 22px; }
-
-  /* Shimmer animation on next zman */
-  @keyframes shimmer {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-  .zman-card.next-zman .zman-time {
-    animation: shimmer 2.5s ease-in-out infinite;
-  }
+  .shaah-zmanit { font-size: 0.78rem; color: var(--ink-muted); text-align: center; }
+  .shaah-zmanit span { font-weight: 500; color: var(--ink); }
 
   .error-msg {
-    color: var(--ink-muted);
+    grid-column: 1/-1; color: var(--ink-muted);
     font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 1rem;
-    text-align: center;
-    padding: 40px;
+    font-style: italic; font-size: 1rem;
+    text-align: center; padding: 40px;
   }
 </style>
 </head>
 <body>
 
+<div class="frame-border"></div>
 <div class="corner corner-tl">✦</div>
 <div class="corner corner-tr">✦</div>
 <div class="corner corner-bl">✦</div>
 <div class="corner corner-br">✦</div>
 
 <div class="page">
+
+  <div class="shabbat-banner">
+    <div class="shabbat-banner-text">שַׁבָּת שָׁלוֹם</div>
+    <div class="shabbat-banner-sub">Shabbat Shalom · הַבְדָּלָה בצאת הכוכבים</div>
+  </div>
+
+  <div class="candle-banner">
+    <div class="candle-inner">
+      <span class="candle-icon">🕯️</span>
+      <div>
+        <div class="candle-label">הדלקת נרות שבת</div>
+        <div class="candle-sub">Candle Lighting · 18 min before sunset (Chabad)</div>
+      </div>
+      <div class="candle-time" id="candle-time">--:--</div>
+      <span class="candle-icon">🕯️</span>
+    </div>
+  </div>
+
   <header>
     <div class="header-location">
       <div class="city-name">לימסול</div>
@@ -346,303 +391,237 @@
   <div class="ornament">· · · ✦ · · ·</div>
 
   <main>
-    <div class="zmanim-section">
-      <div class="section-title">זמני היום · Halachic Times · על פי שיטת בעל התניא</div>
-      <div class="zmanim-grid" id="zmanim-grid">
-        <div class="error-msg">טוען זמנים...</div>
-      </div>
+    <div class="section-title" id="section-title">זמני היום · Halachic Times · על פי שיטת בעל התניא</div>
+    <div class="zmanim-grid" id="zmanim-grid">
+      <div class="error-msg">טוען זמנים...</div>
     </div>
   </main>
 
   <footer>
-    <div class="footer-note">על פי שיטת בעל התניא ז"ל · Baal HaTanya method · Matches Chabad.org calculations</div>
+    <div class="footer-note">על פי שיטת בעל התניא ז"ל · Baal HaTanya method · Matches Chabad.org</div>
     <div class="shaah-zmanit">שעה זמנית: <span id="shaah-zmanit">--:--</span></div>
     <div class="footer-note" dir="ltr">Lat 34.6786 · Lon 33.0413 · Elev 20m</div>
   </footer>
+
 </div>
 
 <script>
-// ── LOCATION ──────────────────────────────────────────────────────
-const LAT = 34.6786;
-const LON = 33.0413;
-const ELEVATION = 20;
-const TZ = 'Asia/Nicosia';
-const LOCATION_NAME = 'Limassol';
+const LAT = 34.6786, LON = 33.0413, ELEVATION = 20;
+const TZ = 'Asia/Nicosia', LOCATION_NAME = 'Limassol';
+const CANDLE_OFFSET_MIN = 18;
 
-// ── ZMANIM DEFINITIONS ────────────────────────────────────────────
-const ZMANIM_DEF = [
-  { key: 'alos',         hebrewName: 'עלות השחר',       englishName: 'Alos HaShachar',    method: 'getAlosBaalHatanya' },
-  { key: 'sunrise',      hebrewName: 'נץ החמה',         englishName: 'Netz HaChamah',     method: 'getSunrise' },
-  { key: 'sofShma',      hebrewName: 'סוף זמן קריאת שמע', englishName: 'Sof Zman Shma',   method: 'getSofZmanShmaBaalHatanya' },
-  { key: 'sofTfila',     hebrewName: 'סוף זמן תפילה',   englishName: 'Sof Zman Tefila',   method: 'getSofZmanTfilaBaalHatanya' },
-  { key: 'chatzos',      hebrewName: 'חצות היום',       englishName: 'Chatzos',           method: 'getChatzos' },
-  { key: 'minchaGedola', hebrewName: 'מנחה גדולה',      englishName: 'Mincha Gedolah',    method: 'getMinchaGedolaBaalHatanya' },
-  { key: 'minchaKetana', hebrewName: 'מנחה קטנה',       englishName: 'Mincha Ketanah',    method: 'getMinchaKetanaBaalHatanya' },
-  { key: 'plagMincha',   hebrewName: 'פלג המנחה',       englishName: 'Plag HaMincha',     method: 'getPlagHaminchaBaalHatanya' },
-  { key: 'sunset',       hebrewName: 'שקיעת החמה',      englishName: 'Shkiat HaChamah',   method: 'getSunset' },
-  { key: 'tzais',        hebrewName: 'צאת הכוכבים',     englishName: 'Tzais (6°)',         method: 'getTzaisBaalHatanya' },
-  { key: 'tzais85',      hebrewName: 'צאת הכוכבים',     englishName: 'Tzais (8.5°)',       method: 'getTzaisGeonim8Point5Degrees' },
+const ZMANIM_WEEKDAY = [
+  { key:'alos',         he:'עלות השחר',        en:'Alos HaShachar',    method:'getAlosBaalHatanya' },
+  { key:'sunrise',      he:'נץ החמה',           en:'Netz HaChamah',     method:'getSunrise' },
+  { key:'sofShma',      he:'סוף זמן ק"ש',       en:'Sof Zman Shma',     method:'getSofZmanShmaBaalHatanya' },
+  { key:'sofTfila',     he:'סוף זמן תפילה',     en:'Sof Zman Tefila',   method:'getSofZmanTfilaBaalHatanya' },
+  { key:'chatzos',      he:'חצות היום',         en:'Chatzos',           method:'getChatzos' },
+  { key:'minchaGedola', he:'מנחה גדולה',        en:'Mincha Gedolah',    method:'getMinchaGedolaBaalHatanya' },
+  { key:'minchaKetana', he:'מנחה קטנה',         en:'Mincha Ketanah',    method:'getMinchaKetanaBaalHatanya' },
+  { key:'plagMincha',   he:'פלג המנחה',         en:'Plag HaMincha',     method:'getPlagHaminchaBaalHatanya' },
+  { key:'sunset',       he:'שקיעת החמה',        en:'Shkiat HaChamah',   method:'getSunset' },
+  { key:'tzais',        he:'צאת הכוכבים',       en:'Tzais (6°)',         method:'getTzaisBaalHatanya' },
+  { key:'tzais85',      he:'צאת הכוכבים',       en:'Tzais (8.5°)',       method:'getTzaisGeonim8Point5Degrees' },
 ];
 
-// ── HEBREW MONTHS ─────────────────────────────────────────────────
-const HEBREW_MONTHS = [
-  '', 'תשרי', 'חשון', 'כסלו', 'טבת', 'שבט', 'אדר',
-  'אדר א׳', 'אדר ב׳', 'ניסן', 'אייר', 'סיון', 'תמוז', 'אב', 'אלול'
+const ZMANIM_SHABBAT = [
+  { key:'alos',         he:'עלות השחר',         en:'Alos HaShachar',    method:'getAlosBaalHatanya' },
+  { key:'sunrise',      he:'נץ החמה',            en:'Netz HaChamah',     method:'getSunrise' },
+  { key:'sofShma',      he:'סוף זמן ק"ש',        en:'Sof Zman Shma',     method:'getSofZmanShmaBaalHatanya' },
+  { key:'sofTfila',     he:'סוף זמן תפילה',      en:'Sof Zman Tefila',   method:'getSofZmanTfilaBaalHatanya' },
+  { key:'chatzos',      he:'חצות היום',          en:'Chatzos',           method:'getChatzos' },
+  { key:'minchaGedola', he:'מנחה גדולה',         en:'Mincha Gedolah',    method:'getMinchaGedolaBaalHatanya' },
+  { key:'minchaKetana', he:'מנחה קטנה',          en:'Mincha Ketanah',    method:'getMinchaKetanaBaalHatanya' },
+  { key:'plagMincha',   he:'פלג המנחה',          en:'Plag HaMincha',     method:'getPlagHaminchaBaalHatanya' },
+  { key:'sunset',       he:'שקיעת החמה',         en:'Shkiat HaChamah',   method:'getSunset' },
+  { key:'tzais',        he:'צאת השבת (6°)',       en:'Tzais / Havdalah',  method:'getTzaisBaalHatanya',            havdalah:true },
+  { key:'tzais85',      he:'מוצאי שבת (8.5°)',   en:'Motzai Shabbat',    method:'getTzaisGeonim8Point5Degrees',   havdalah:true },
 ];
-const HEBREW_NUMS = ['', 'א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט', 'י',
-  'יא', 'יב', 'יג', 'יד', 'טו', 'טז', 'יז', 'יח', 'יט', 'כ',
-  'כא', 'כב', 'כג', 'כד', 'כה', 'כו', 'כז', 'כח', 'כט', 'ל'];
 
-const DAYS_HE = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+const HEBREW_MONTHS = ['','תשרי','חשון','כסלו','טבת','שבט','אדר','אדר א׳','אדר ב׳','ניסן','אייר','סיון','תמוז','אב','אלול'];
+const HEBREW_NUMS   = ['','א','ב','ג','ד','ה','ו','ז','ח','ט','י','יא','יב','יג','יד','טו','טז','יז','יח','יט','כ','כא','כב','כג','כד','כה','כו','כז','כח','כט','ל'];
+const DAYS_HE       = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
 
-const GREGORIAN_MONTHS_EN = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December'
-];
-const DAYS_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const PARSHA_MAP = {
+  'BERESHIS':'בראשית','NOACH':'נח','LECH_LECHA':'לך לך','VAYERA':'וירא','CHAYEI_SARA':'חיי שרה',
+  'TOLDOS':'תולדות','VAYETZEI':'ויצא','VAYISHLACH':'וישלח','VAYESHEV':'וישב','MIKETZ':'מקץ',
+  'VAYIGASH':'ויגש','VAYECHI':'ויחי','SHEMOS':'שמות','VAERA':'וארא','BO':'בא','BESHALACH':'בשלח',
+  'YISRO':'יתרו','MISHPATIM':'משפטים','TERUMAH':'תרומה','TETZAVEH':'תצוה','KI_SISA':'כי תשא',
+  'VAYAKHEL':'ויקהל','PEKUDEI':'פקודי','VAYIKRA':'ויקרא','TZAV':'צו','SHMINI':'שמיני',
+  'TAZRIA':'תזריע','METZORA':'מצורע','ACHREI_MOS':'אחרי מות','KEDOSHIM':'קדושים','EMOR':'אמור',
+  'BEHAR':'בהר','BECHUKOSAI':'בחקותי','BAMIDBAR':'במדבר','NASSO':'נשא','BEHAALOSCHA':'בהעלותך',
+  'SHLACH':'שלח','KORACH':'קרח','CHUKAS':'חוקת','BALAK':'בלק','PINCHAS':'פנחס','MATOS':'מטות',
+  'MASEI':'מסעי','DEVARIM':'דברים','VAESCHANAN':'ואתחנן','EIKEV':'עקב','REEH':'ראה',
+  'SHOFTIM':'שופטים','KI_SEITZEI':'כי תצא','KI_SAVO':'כי תבוא','NITZAVIM':'נצבים',
+  'VAYEILECH':'וילך','HAAZINU':'האזינו','VZOS_HABERACHA':'וזאת הברכה'
+};
 
-// ── PARSHIYOT ─────────────────────────────────────────────────────
-// We'll use KosherJava's JewishCalendar for parsha when available
-// Otherwise show day name
+function formatParsha(p) {
+  const key = (p.toString ? p.toString() : String(p)).toUpperCase();
+  for (const [k,v] of Object.entries(PARSHA_MAP)) { if (key.includes(k)) return v; }
+  return '';
+}
+
 function getParsha(cal) {
   try {
-    const parsha = cal.getParshiosHashavua();
-    if (parsha && parsha.length > 0) {
-      const names = parsha.map(p => formatParsha(p));
-      return 'פרשת ' + names.join(' - ');
+    const ps = cal.getParshiosHashavua();
+    if (ps && ps.length) {
+      const names = ps.map(formatParsha).filter(Boolean);
+      if (names.length) return 'פרשת ' + names.join(' - ');
     }
   } catch(e) {}
   return '';
 }
 
-function formatParsha(p) {
-  const map = {
-    'NONE': '', 'BERESHIS': 'בראשית', 'NOACH': 'נח', 'LECH_LECHA': 'לך לך',
-    'VAYERA': 'וירא', 'CHAYEI_SARA': 'חיי שרה', 'TOLDOS': 'תולדות',
-    'VAYETZEI': 'ויצא', 'VAYISHLACH': 'וישלח', 'VAYESHEV': 'וישב',
-    'MIKETZ': 'מקץ', 'VAYIGASH': 'ויגש', 'VAYECHI': 'ויחי',
-    'SHEMOS': 'שמות', 'VAERA': 'וארא', 'BO': 'בא', 'BESHALACH': 'בשלח',
-    'YISRO': 'יתרו', 'MISHPATIM': 'משפטים', 'TERUMAH': 'תרומה',
-    'TETZAVEH': 'תצוה', 'KI_SISA': 'כי תשא', 'VAYAKHEL': 'ויקהל',
-    'PEKUDEI': 'פקודי', 'VAYIKRA': 'ויקרא', 'TZAV': 'צו',
-    'SHMINI': 'שמיני', 'TAZRIA': 'תזריע', 'METZORA': 'מצורע',
-    'ACHREI_MOS': 'אחרי מות', 'KEDOSHIM': 'קדושים', 'EMOR': 'אמור',
-    'BEHAR': 'בהר', 'BECHUKOSAI': 'בחקותי', 'BAMIDBAR': 'במדבר',
-    'NASSO': 'נשא', 'BEHAALOSCHA': 'בהעלותך', 'SHLACH': 'שלח',
-    'KORACH': 'קרח', 'CHUKAS': 'חוקת', 'BALAK': 'בלק',
-    'PINCHAS': 'פנחס', 'MATOS': 'מטות', 'MASEI': 'מסעי',
-    'DEVARIM': 'דברים', 'VAESCHANAN': 'ואתחנן', 'EIKEV': 'עקב',
-    'REEH': 'ראה', 'SHOFTIM': 'שופטים', 'KI_SEITZEI': 'כי תצא',
-    'KI_SAVO': 'כי תבוא', 'NITZAVIM': 'נצבים', 'VAYEILECH': 'וילך',
-    'HAAZINU': 'האזינו', 'VZOS_HABERACHA': 'וזאת הברכה'
-  };
-  const key = p.toString ? p.toString() : String(p);
-  for (const [k, v] of Object.entries(map)) {
-    if (key.toUpperCase().includes(k)) return v;
-  }
-  return key;
+function toJSDate(t) {
+  if (!t) return null;
+  if (t instanceof Date) return isNaN(t) ? null : t;
+  if (typeof t.toJSDate === 'function') return t.toJSDate();
+  if (typeof t.toMillis === 'function') return new Date(t.toMillis());
+  return null;
 }
 
-// ── FORMAT TIME ───────────────────────────────────────────────────
-function fmtTime(date) {
-  if (!date || !(date instanceof Date) || isNaN(date)) return '—';
-  return date.toLocaleTimeString('he-IL', {
-    hour: '2-digit', minute: '2-digit',
-    timeZone: TZ, hour12: false
-  });
+function fmtTime(d) {
+  if (!d || !(d instanceof Date) || isNaN(d)) return '—';
+  return d.toLocaleTimeString('he-IL', { hour:'2-digit', minute:'2-digit', timeZone:TZ, hour12:false });
 }
 
 function fmtDuration(ms) {
-  const totalMin = Math.round(ms / 60000);
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  return `${h}:${m.toString().padStart(2, '0')}`;
+  const m = Math.round(ms/60000);
+  return `${Math.floor(m/60)}:${(m%60).toString().padStart(2,'0')}`;
 }
 
-// ── BUILD ZMANIM ──────────────────────────────────────────────────
+function toHebrewYear(year) {
+  const L=['','א','ב','ג','ד','ה','ו','ז','ח','ט'];
+  const T=['','י','כ','ל','מ','נ','ס','ע','פ','צ'];
+  const H=['','ק','ר','ש','ת','תק','תר','תש','תת','תתק'];
+  const TH=['','א','ב','ג','ד','ה','ו','ז','ח','ט'];
+  let y=year;
+  const th=Math.floor(y/1000); y%=1000;
+  const h=Math.floor(y/100);   y%=100;
+  const t=Math.floor(y/10), u=y%10;
+  let s=(th?TH[th]+'\'':'')+( H[h]||'');
+  if (t===1&&u===5) s+='טו';
+  else if (t===1&&u===6) s+='טז';
+  else { s+=T[t]||''; s+=L[u]||''; }
+  if (s.length>1) s=s.slice(0,-1)+'"'+s.slice(-1);
+  return s;
+}
+
+function getDayMode(now) {
+  const d = now.toLocaleDateString('en-US', { weekday:'long', timeZone:TZ });
+  if (d==='Saturday') return 'shabbat';
+  if (d==='Friday')   return 'friday';
+  return 'weekday';
+}
+
+function applyTheme(mode) {
+  document.body.classList.remove('shabbat','friday');
+  if (mode==='shabbat') document.body.classList.add('shabbat');
+  if (mode==='friday')  document.body.classList.add('friday');
+  const titles = {
+    shabbat: 'זמני שַׁבָּת · Shabbat Times · על פי שיטת בעל התניא',
+    friday:  'זמני ערב שבת · Erev Shabbat Times · על פי שיטת בעל התניא',
+    weekday: 'זמני היום · Halachic Times · על פי שיטת בעל התניא',
+  };
+  document.getElementById('section-title').textContent = titles[mode];
+}
+
 function buildZmanim() {
   try {
-    const now = new Date();
+    const now  = new Date();
+    const mode = getDayMode(now);
+    applyTheme(mode);
 
-    // KosherZmanim UMD exposes classes directly on window.KosherZmanim
-    const GeoLocation          = KosherZmanim.GeoLocation;
-    const ComplexZmanimCalendar = KosherZmanim.ComplexZmanimCalendar;
-    const JewishCalendar        = KosherZmanim.JewishCalendar;
-
-    const geoLocation = new GeoLocation(
-      LOCATION_NAME, LAT, LON, ELEVATION, TZ
-    );
-
-    const czc = new ComplexZmanimCalendar(geoLocation);
+    const geo = new KosherZmanim.GeoLocation(LOCATION_NAME, LAT, LON, ELEVATION, TZ);
+    const czc = new KosherZmanim.ComplexZmanimCalendar(geo);
     czc.setDate(now);
-
-    // Hebrew calendar
-    const jCal = new JewishCalendar(now);
+    const jCal = new KosherZmanim.JewishCalendar(now);
     jCal.setInIsrael(false);
 
-    // Hebrew date string
-    const day = jCal.getJewishDayOfMonth();
-    const month = jCal.getJewishMonth();
-    const year = jCal.getJewishYear();
-    // Year to Hebrew letters
-    const hebrewYear = toHebrewYear(year);
-    const monthName = HEBREW_MONTHS[month] || '';
-    const hebrewDateStr = `${HEBREW_NUMS[day]} ${monthName} ${hebrewYear}`;
+    // Hebrew date
+    document.getElementById('hebrew-date').textContent =
+      `${HEBREW_NUMS[jCal.getJewishDayOfMonth()]} ${HEBREW_MONTHS[jCal.getJewishMonth()]||''} ${toHebrewYear(jCal.getJewishYear())}`;
 
-    document.getElementById('hebrew-date').textContent = hebrewDateStr;
-
-    // Parsha (show on Shabbat or approaching Shabbat)
+    // Parsha / day
     const parsha = getParsha(jCal);
-    if (parsha) {
-      document.getElementById('parsha').textContent = parsha;
-    } else {
-      // Show day of week in Hebrew
-      document.getElementById('parsha').textContent = `יום ${DAYS_HE[now.getDay()]}`;
+    document.getElementById('parsha').textContent = parsha || `יום ${DAYS_HE[now.getDay()]}`;
+
+    // Candle lighting
+    const sunset = toJSDate(czc.getSunset ? czc.getSunset() : null);
+    if (sunset) {
+      document.getElementById('candle-time').textContent =
+        fmtTime(new Date(sunset.getTime() - CANDLE_OFFSET_MIN * 60000));
     }
 
-    // Calculate all zmanim
+    // Zmanim list
+    const list = mode === 'shabbat' ? ZMANIM_SHABBAT : ZMANIM_WEEKDAY;
     const times = {};
-    for (const z of ZMANIM_DEF) {
-      try {
-        const t = czc[z.method] ? czc[z.method]() : null;
-        if (!t) { times[z.key] = null; continue; }
-        // Result may be a Luxon DateTime or a JS Date
-        if (t && typeof t.toJSDate === 'function') {
-          times[z.key] = t.toJSDate();
-        } else if (t instanceof Date) {
-          times[z.key] = t;
-        } else if (t && typeof t.toMillis === 'function') {
-          times[z.key] = new Date(t.toMillis());
-        } else {
-          times[z.key] = null;
-        }
-      } catch(e) {
-        times[z.key] = null;
-      }
+    for (const z of list) {
+      try { times[z.key] = toJSDate(czc[z.method] ? czc[z.method]() : null); }
+      catch(e) { times[z.key] = null; }
     }
 
     // Shaah Zmanit
     try {
       const sz = czc.getShaahZmanisBaalHatanya ? czc.getShaahZmanisBaalHatanya() : czc.getShaahZmanisGra();
       document.getElementById('shaah-zmanit').textContent = fmtDuration(sz);
-    } catch(e) {
-      document.getElementById('shaah-zmanit').textContent = '—';
+    } catch(e) { document.getElementById('shaah-zmanit').textContent = '—'; }
+
+    // Next zman
+    let nextKey=null, nearestDiff=Infinity;
+    for (const z of list) {
+      const t=times[z.key];
+      if (t && t>now && (t-now)<nearestDiff) { nearestDiff=t-now; nextKey=z.key; }
     }
 
-    // Find next zman
-    let nextKey = null;
-    let nearestDiff = Infinity;
-    for (const z of ZMANIM_DEF) {
-      const t = times[z.key];
-      if (t && t > now) {
-        const diff = t - now;
-        if (diff < nearestDiff) {
-          nearestDiff = diff;
-          nextKey = z.key;
-        }
-      }
-    }
-
-    // Render cards
+    // Render
     const grid = document.getElementById('zmanim-grid');
     grid.innerHTML = '';
-    for (const z of ZMANIM_DEF) {
-      const t = times[z.key];
-      const isPast = t && t <= now;
-      const isNext = z.key === nextKey;
-
-      const card = document.createElement('div');
-      card.className = 'zman-card' + (isNext ? ' next-zman' : '') + (isPast ? ' past-zman' : '');
-
-      card.innerHTML = `
-        <div class="zman-name-he">${z.hebrewName}</div>
-        <div class="zman-name-en">${z.englishName}</div>
-        <div class="zman-time">${t ? fmtTime(t) : '—'}</div>
-        ${isNext ? '<span class="next-label">הבא ›</span>' : ''}
+    for (const z of list) {
+      const t=times[z.key], isPast=t&&t<=now, isNext=z.key===nextKey;
+      const card=document.createElement('div');
+      let cls='zman-card';
+      if (isNext)    cls+=' next-zman';
+      if (isPast)    cls+=' past-zman';
+      if (z.havdalah) cls+=' havdalah';
+      card.className=cls;
+      card.innerHTML=`
+        <div class="zman-name-he">${z.he}</div>
+        <div class="zman-name-en">${z.en}</div>
+        <div class="zman-time">${fmtTime(t)}</div>
+        ${isNext?'<span class="next-label">הבא ›</span>':''}
       `;
       grid.appendChild(card);
     }
 
   } catch(err) {
     document.getElementById('zmanim-grid').innerHTML =
-      `<div class="error-msg" style="grid-column:1/-1">שגיאה בחישוב הזמנים: ${err.message}</div>`;
+      `<div class="error-msg">שגיאה בחישוב הזמנים: ${err.message}</div>`;
     console.error('Zmanim error:', err);
   }
 }
 
-// ── HEBREW YEAR CONVERSION ────────────────────────────────────────
-function toHebrewYear(year) {
-  // Return as geresh-formatted Hebrew letters for the millennium part
-  const letters = ['', 'א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט'];
-  const tens = ['', 'י', 'כ', 'ל', 'מ', 'נ', 'ס', 'ע', 'פ', 'צ'];
-  const hundreds = ['', 'ק', 'ר', 'ש', 'ת', 'תק', 'תר', 'תש', 'תת', 'תתק'];
-  const thousands = ['', 'א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט'];
-
-  let y = year;
-  const th = Math.floor(y / 1000);
-  y = y % 1000;
-  const h = Math.floor(y / 100);
-  y = y % 100;
-  const t = Math.floor(y / 10);
-  const u = y % 10;
-
-  let str = '';
-  if (th) str += thousands[th] + '\'';
-  str += hundreds[h] || '';
-  // Special case: 15 = טו, 16 = טז (not יה / יו)
-  if (t === 1 && u === 5) str += 'טו';
-  else if (t === 1 && u === 6) str += 'טז';
-  else {
-    str += tens[t] || '';
-    str += letters[u] || '';
-  }
-
-  // Insert geresh before last letter
-  if (str.length > 1) {
-    str = str.slice(0, -1) + '"' + str.slice(-1);
-  }
-  return str;
-}
-
-// ── CLOCK ─────────────────────────────────────────────────────────
 let lastDay = -1;
-
 function updateClock() {
   const now = new Date();
-
-  const timeStr = now.toLocaleTimeString('he-IL', {
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    timeZone: TZ, hour12: false
-  });
-  document.getElementById('clock').textContent = timeStr;
-
-  const dateStr = now.toLocaleDateString('en-GB', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-    timeZone: TZ
-  });
-  document.getElementById('gregorian-date').textContent = dateStr;
-
-  // Rebuild zmanim once per day and on load
-  const d = now.getDate();
-  if (d !== lastDay) {
-    lastDay = d;
-    buildZmanim();
-  }
+  document.getElementById('clock').textContent = now.toLocaleTimeString('he-IL',
+    { hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone:TZ, hour12:false });
+  document.getElementById('gregorian-date').textContent = now.toLocaleDateString('en-GB',
+    { weekday:'long', day:'numeric', month:'long', year:'numeric', timeZone:TZ });
+  const d=now.getDate();
+  if (d!==lastDay) { lastDay=d; buildZmanim(); }
 }
 
-// ── REFRESH NEXT-ZMAN HIGHLIGHT every minute ──────────────────────
-setInterval(() => { buildZmanim(); }, 60000);
+setInterval(buildZmanim, 60000);
 
-// ── START ─────────────────────────────────────────────────────────
 function init() {
-  if (typeof KosherZmanim === 'undefined' || !KosherZmanim.ComplexZmanimCalendar) {
-    setTimeout(init, 300);
-    return;
+  if (typeof KosherZmanim==='undefined' || !KosherZmanim.ComplexZmanimCalendar) {
+    setTimeout(init, 300); return;
   }
   updateClock();
   setInterval(updateClock, 1000);
 }
-
 window.addEventListener('load', init);
 </script>
 </body>
